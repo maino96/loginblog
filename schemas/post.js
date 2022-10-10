@@ -1,23 +1,31 @@
 const mongoose = require("mongoose");
 
 const postsSchema = mongoose.Schema({
-        user: {
+        postId: { // 포스트 아이디
+            type: Number,
+            required: true,
+            unique: true,
+        },
+
+        nickname: { // 작성자명
+            type: String,
+  
+        },
+
+        title: { // 게시글 제목
             type: String,
             required: true,
-            unique: true
         },
-        title: {
+
+        content: { // 작성글
             type: String,
         },
-        content: {
-            type: String,
-        },
-        password: {
-            type: Number && String,
-            required: true
-        },
-        createAt: {
+        
+        createdAt: { // 작성일자
             type: Date,
+        },
+        likes: {
+            type: Number,
         },
  
     });

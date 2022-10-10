@@ -1,11 +1,19 @@
+// requires
 const express = require("express");
 const connect = require("./schemas/index");
-const app = express();
-const indexRouter = require("./routes/index");
-const jsonParser = express.json() 
-const port = 3000;
+const port = 3000
 
-connect();
+connect();  
+
+// express
+const app = express();
+const jsonParser = express.json() 
+
+
+//router
+const indexRouter = require("./routes/index");
+
+
 
 const reqMiddleware = (req, res, next) => {
     console.log("[미들웨어]Request URL:", req.originalUrl, "", new Date());
@@ -19,9 +27,10 @@ app.use(jsonParser);
 app.use(reqMiddleware);
 app.use(indexRouter);
 
+app.use(express.urlencoded({ extended: false }));
+app.use(express.static("assets"));
 
 
 app.listen(port, () => {
-    console.log(port, "포트로 서버가 열렸습니다.")
-})
-
+console.log('서버가 요청을 받을 준비가 됐어요');
+});

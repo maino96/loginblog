@@ -1,12 +1,16 @@
 const express = require("express");
 const Comments = require("../schemas/comment");
+const User = require('../scheams/user');
+const Joi = require("joi");
+const authMiddleware = require("../middlewares/auth-middlewares");
 const router = express.Router(); // Router 객체 생성
 
 
 
 // 댓글 작성 API + 현지시간 필요
-router.post ("/:_postId", async (req, res) => {
+router.post ("/:_postId", authMiddleware, async (req, res, next) => {
   try{
+    
     const createdAt = new Date();
     const date = createdAt.toLocaleDateString();
    const { _postId } = req.params; // req.params_postId 구조분해할당한 형태
@@ -42,7 +46,7 @@ router.get("/:_postId", async (req, res, next) => {
      commentId: item._id,
      user: item.user,
      content: item.content,
-     createdAt: item.createAt
+     createdAt: item.createAt        // userId 넣어야함
    }
  })
  res.status(201).send({data,
@@ -56,7 +60,7 @@ res.status(400).send({'message': "댓글 조회하기 error"})}
 
 
 // 댓글 삭제 API
-router.delete("/:_commentId", async (req, res) => {
+router.delete("/:_commentId", authMiddleware, async (req, res) => {
  try{
    const { _commentId } = req.params;
    const { password } = req.body;
@@ -74,10 +78,11 @@ router.delete("/:_commentId", async (req, res) => {
  });
  
  // 댓글 수정 API
- router.put("/:_commentId", async (req, res) => {
+ router.put("/:_commentId", authMiddleware, async (req, res) => {
    try{
      const { _commentId } = req.params;
-     const { password, content } = req.body;
+     const { user } = res.locals;
+     const { comment } = req.body;
  if ( password === password ){
    await Comments.updateOne({  _id: _commentId  }, { $set: { password, content} });
    return res.status(201).send({ message: "댓글을 수정하였습니다." });

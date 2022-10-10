@@ -5,10 +5,11 @@ const commentSchema = mongoose.Schema({
     type: String,
     required: true,
   },
-  user: {
-    type: String,
-    required: true,
+  commentsId: {
+    type: Number,
+    unique: true,
   },
+
   password: {
     type: Number,
     required: true,

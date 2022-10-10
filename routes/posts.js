@@ -1,17 +1,18 @@
 const express = require("express");
 const Posts = require("../schemas/post"); // schema- post.js 모델 가져오기
 const router = express.Router(); // Router 객체 생성
+const authMiddleware = require("../middlewares/auth-middleware");
 
 
 
-// 게시글 작성 API (+현지시간 필요)
+// 게시글 작성 API (+현지시간 필요) 수정예정.
 router.post ("/", async (req, res) => {
   try{ 
   const createdAt = new Date();
   const date = createdAt.toLocaleDateString();
 
-    const { user, title, content, password } = req.body;
-    console.log({ user, title, content, password });
+    const { user, password, title, content } = req.body;
+    console.log({ title, content });
 
     const writePost = await Posts.create(
         {
@@ -30,18 +31,19 @@ router.post ("/", async (req, res) => {
     res.status(400).send({'message': "게시글 작성하기 error"})}
 })
 
-// 게시글 전체 조회 API (+내림차순 정렬 필요)
+// 게시글 전체 조회 API (+내림차순 정렬 필요) + 미들웨어 투입
 router.get("/", async (req, res, next) => {
     try{
-      const posts = await Posts.find().sort("-createdAt"); // 자바스크립트 sort 공부해오기 !! 숙제
+      const posts = await Posts.find().sort("-createdAt"); // 자바스크립트 sort 공부해오기 !!
 
     const postResult = posts.map((item) => {
       return {
       postId: item._id,
-      user: item.user,
+      nickname: item.nickname,
       title: item.title,
       content: item.content,
-      createdAt: item.createAt
+      createdAt: item.createdAt,
+
     }
       })
     res.json({
@@ -63,7 +65,7 @@ router.get("/:_postId", async (req, res) => {
     user: detail.user,
       title: detail.title,
       content: detail.content,
-      createdAt: detail.createAt
+      createdAt: detail.createdAt
   }
   res.status(201).send({ post });
 });
