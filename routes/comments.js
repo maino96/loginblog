@@ -1,9 +1,15 @@
 const express = require("express");
 const Comments = require("../schemas/comment");
-const User = require('../scheams/user');
 const Joi = require("joi");
-const authMiddleware = require("../middlewares/auth-middlewares");
+const authMiddleware = require("../middlewares/auth-middleware");
 const router = express.Router(); // Router 객체 생성
+
+ // Joi 댓글 작성 schema
+ 
+   const commentSchema = Joi.object({
+   content: Joi.string().required(),
+
+ });
 
 
 
@@ -11,18 +17,28 @@ const router = express.Router(); // Router 객체 생성
 router.post ("/:_postId", authMiddleware, async (req, res, next) => {
   try{
     
+    //현지 시간으로
     const createdAt = new Date();
     const date = createdAt.toLocaleDateString();
-   const { _postId } = req.params; // req.params_postId 구조분해할당한 형태
 
-   const { user, content, password } = req.body;
-   console.log({ user, content, password });
+      const { _postId } = req.params;
+      const { content } = req.body;
+    // 토큰 정보 받아오기
+      const { user } = res.locals;
+      console.log({user});
+     
+
+    // 댓글내용이 없을 시 에러 발생
+    if (!content.length) {
+      res.status(400).send({ errorMessage: "댓글 내용을 입력해주세요." });
+      return;
+    }
 
    const writePost = await Comments.create(
        {
-           _postId,
-           user,
-           password,
+          _postId,
+           userId: user.userId,
+           nickname: user.nickname,
            content,
            createdAt: date,
        }
@@ -80,11 +96,12 @@ router.delete("/:_commentId", authMiddleware, async (req, res) => {
  // 댓글 수정 API
  router.put("/:_commentId", authMiddleware, async (req, res) => {
    try{
-     const { _commentId } = req.params;
      const { user } = res.locals;
-     const { comment } = req.body;
- if ( password === password ){
-   await Comments.updateOne({  _id: _commentId  }, { $set: { password, content} });
+     const { content } = req.body;
+     const { _commentId } = req.params;
+     console.log({content, _commentId});
+ if ( user.userId !== Comments.userId ){
+   await Comments.updateOne({  _id: _commentId  }, { $set: { content } });
    return res.status(201).send({ message: "댓글을 수정하였습니다." });
  }
  else {   
