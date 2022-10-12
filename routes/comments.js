@@ -85,7 +85,7 @@ router.delete("/:_commentId", authMiddleware, async (req, res) => {
      await Comments.deleteOne({ _id: _commentId});
      return res.status(201).send({ message: "댓글을 삭제하였습니다." });
    } else {
-   return res.json({ message: "비밀번호가 다릅니다." }); 
+   return res.json({ message: "댓글을 삭제할 수 없습니다." }); 
   }
  }
  catch(error){ // catch가 에러를 받는다.
@@ -105,7 +105,7 @@ router.delete("/:_commentId", authMiddleware, async (req, res) => {
    return res.status(201).send({ message: "댓글을 수정하였습니다." });
  }
  else {   
-     return res.json({ message: "비밀번호를 확인해주세요." });
+     return res.json({ message: "댓글을 수정할 수 없습니다." }); 
    };
    }
    catch(error){ // catch가 에러를 받는다.

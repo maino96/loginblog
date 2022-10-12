@@ -28,7 +28,7 @@ app.use(reqMiddleware);
 app.use(indexRouter);
 
 app.use(express.urlencoded({ extended: false }));
-app.use(express.static("assets"));
+
 
 
 app.listen(port, () => {

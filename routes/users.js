@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken')
 const User = require('../schemas/user'); //폴더 밖에 나가서 경로를 찾아서 ../넣음
 
 
+
 //회원가입 검증
 const user_Signup = Joi.object({ //문자열에 최소 3자 이상, 알파벳 대소문자(a~z, A~Z), 숫자(0~9)
   nickname : Joi.string().pattern((new RegExp('^[a-zA-Z0-9]{3,30}$'))).required(),

@@ -1,11 +1,6 @@
 const mongoose = require("mongoose");
 
 const postsSchema = mongoose.Schema({
-        postId: { // 포스트 아이디
-            type: Number,
-            unique: true,
-        },
-
         userId: {
             type: String,
             unique: true,
@@ -13,7 +8,7 @@ const postsSchema = mongoose.Schema({
 
         nickname: { // 작성자명
             type: String,
-  
+            required: true,
         },
 
         title: { // 게시글 제목
@@ -28,7 +23,7 @@ const postsSchema = mongoose.Schema({
         createdAt: { // 작성일자
             type: Date,
         },
-        likes: { // 좋아요
+        totallike: { // 토탈라이크
             type: Number,
         },
  
