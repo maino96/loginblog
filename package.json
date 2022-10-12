@@ -4,6 +4,11 @@
     "install": "^0.13.0",
     "joi": "^17.6.2",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^6.6.5"
+    "mongoose": "^6.6.5",
+    "mysql2": "^2.3.3",
+    "sequelize": "^6.25.0"
+  },
+  "devDependencies": {
+    "sequelize-cli": "^6.5.1"
   }
 }
