@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Joi = require("joi");
 const jwt = require('jsonwebtoken')
-const User = require('../schemas/user'); //폴더 밖에 나가서 경로를 찾아서 ../넣음
+const { User } = require('../models'); //폴더 밖에 나가서 경로를 찾아서 ../넣음
 
 
 
@@ -15,6 +15,12 @@ const user_Signup = Joi.object({ //문자열에 최소 3자 이상, 알파벳 �
 
 router.post('/signup',async (req,res)=>{
   try{
+    if(req.cookies.token){ // 검증
+      res.status(401).send({
+        errorMessage : '이미 로그인이 되어있습니다.'
+      })
+    }
+    
   const { nickname , password , confirm} = await user_Signup.validateAsync(req.body);  //정보를 받아옴
       console.log(nickname , password , confirm)
     if (password == nickname){  //비밀번호 닉네임 중복검사
@@ -29,7 +35,7 @@ router.post('/signup',async (req,res)=>{
       })
       return;
     } 
-      const users = await User.findOne({nickname})
+      const users = await User.findOne({ where:{nickname}})
     if (users){ //닉네임 중복검사
         res.status(400).send({
           errorMessage: "중복된 닉네임입니다.",
@@ -56,6 +62,11 @@ const userOne = Joi.object({
 // 로그인
 router.post("/login", async (req, res) => {
   try {
+    if(req.cookies.token){ // 검증
+      res.status(401).send({
+        errorMessage : '이미 로그인이 되어있습니다.'
+      })
+    }
     const { nickname, password } = await userOne.validateAsync(req.body);
     const users = await User.findOne({
       where: {
@@ -84,8 +95,9 @@ router.post("/login", async (req, res) => {
       { userId: users.userId, nickname: users.nickname },
       "my-secret-key"
     );
+    res.cookie('token',token)
     res.send({
-      token: token,
+      token,
     });
   } catch (err) {}
 });

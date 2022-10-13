@@ -1,8 +1,12 @@
-{
+require('dotenv').config();
+
+const { DB_USERNAME, DB_PASSWORD} = process.env
+
+const config = { 
   "development": {
-    "username": "admin",
-    "password": "1234aaaa",
-    "database": "database_development",
+    "username": DB_USERNAME,
+    "password": DB_PASSWORD,
+    "database": "database_homework",
     "host": "node-database.coxlfrx4fdvf.ap-northeast-2.rds.amazonaws.com",
     "dialect": "mysql"
   },
@@ -21,3 +25,5 @@
     "dialect": "mysql"
   }
 }
+
+module.exports = config

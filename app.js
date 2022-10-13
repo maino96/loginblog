@@ -1,9 +1,9 @@
 // requires
 const express = require("express");
-const connect = require("./schemas/index");
+const connect = require("./models/index");
+const cookieParser = require('cookie-parser') ;
 const port = 3000
 
-connect();  
 
 // express
 const app = express();
@@ -23,12 +23,12 @@ const reqMiddleware = (req, res, next) => {
 
 
 // 미들웨어
+app.use(cookieParser())
 app.use(jsonParser);
 app.use(reqMiddleware);
 app.use(indexRouter);
 
 app.use(express.urlencoded({ extended: false }));
-
 
 
 app.listen(port, () => {

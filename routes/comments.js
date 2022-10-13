@@ -1,27 +1,18 @@
 const express = require("express");
-const Comments = require("../schemas/comment");
-const Joi = require("joi");
+const { comment } = require("../models");
 const authMiddleware = require("../middlewares/auth-middleware");
 const router = express.Router(); // Router 객체 생성
 
- // Joi 댓글 작성 schema
- 
-   const commentSchema = Joi.object({
-   content: Joi.string().required(),
-
- });
-
-
 
 // 댓글 작성 API + 현지시간 필요
-router.post ("/:_postId", authMiddleware, async (req, res, next) => {
+router.post ("/:postId", authMiddleware, async (req, res, next) => {
   try{
     
     //현지 시간으로
     const createdAt = new Date();
     const date = createdAt.toLocaleDateString();
 
-      const { _postId } = req.params;
+      const { postId } = req.params;
       const { content } = req.body;
     // 토큰 정보 받아오기
       const { user } = res.locals;
@@ -29,18 +20,18 @@ router.post ("/:_postId", authMiddleware, async (req, res, next) => {
      
 
     // 댓글내용이 없을 시 에러 발생
-    if (!content.length) {
+    if (content === "") {
       res.status(400).send({ errorMessage: "댓글 내용을 입력해주세요." });
       return;
     }
 
-   const writePost = await Comments.create(
+   const writePost = await comment.create(
        {
-          _postId,
            userId: user.userId,
            nickname: user.nickname,
            content,
            createdAt: date,
+           updateAt: date,
        }
    );
 
@@ -53,20 +44,14 @@ router.post ("/:_postId", authMiddleware, async (req, res, next) => {
 
 
 // 댓글 목록 조회 API (+내림차순 정렬 필요)
-router.get("/:_postId", async (req, res, next) => {
+router.get("/:postId", async (req, res, next) => {
  try{
- const _postId = req.params;
- const comments = await Comments.find(_postId).sort({createAt: "desc"});
- const data = comments.map((item) => {
-   return {
-     commentId: item._id,
-     user: item.user,
-     content: item.content,
-     createdAt: item.createAt        // userId 넣어야함
-   }
- })
- res.status(201).send({data,
- })
+ const { postId } = req.params;
+ const data = await comment.findAll({arttributes:{ exclude:["postId"]},order : [["createdAt", "DESC"]], }) 
+
+ res.json({
+  data, 
+})
 }
 catch(error){ // catch가 에러를 받는다.
  console.log(error)
@@ -76,32 +61,26 @@ res.status(400).send({'message': "댓글 조회하기 error"})}
 
 
 // 댓글 삭제 API
-router.delete("/:_commentId", authMiddleware, async (req, res) => {
+router.delete("/:postId/:commentId", authMiddleware, async (req, res) => {
  try{
-   const { _commentId } = req.params;
-   const { password } = req.body;
+   const { commentId } = req.params;
 
-   if (password === password) {
-     await Comments.deleteOne({ _id: _commentId});
+     await comment.destroy({ where: { commentId } });
      return res.status(201).send({ message: "댓글을 삭제하였습니다." });
-   } else {
-   return res.json({ message: "댓글을 삭제할 수 없습니다." }); 
-  }
- }
- catch(error){ // catch가 에러를 받는다.
+   } catch(error){ // catch가 에러를 받는다.
    console.log(error)
- res.status(400).send({'message': "댓글 삭제하기 error"})}
+ res.status(400).send({'message': "댓글 삭제하기 실패"})}
  });
  
  // 댓글 수정 API
- router.put("/:_commentId", authMiddleware, async (req, res) => {
+ router.put("/:postId/:commentId", authMiddleware, async (req, res) => {
    try{
      const { user } = res.locals;
      const { content } = req.body;
-     const { _commentId } = req.params;
-     console.log({content, _commentId});
- if ( user.userId !== Comments.userId ){
-   await Comments.updateOne({  _id: _commentId  }, { $set: { content } });
+     const { commentId } = req.params;
+
+ if ( user.userId !== comment.userId ){
+   await comment.update({ content }, {where: {commentId}});
    return res.status(201).send({ message: "댓글을 수정하였습니다." });
  }
  else {   
